@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}المستخدمون والصلاحيات{% endblock %}
+{% block content %}
+<div class="page-header"><div><span class="eyebrow">ACCESS CONTROL</span><h1>المستخدمون والصلاحيات</h1><p>أنشئ حسابًا لكل شخص في فريق الإدارة، ثم حدّد النماذج والنتائج التي يستطيع الوصول إليها.</p></div></div>
+<section class="panel form-layout user-create-panel">
+  <h2>إضافة مستخدم</h2><form method="post" action="{{ url_for('create_user') }}" class="grid-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div><label>اسم المستخدم</label><input name="username" required minlength="3" maxlength="80" pattern="[A-Za-z0-9_.-]+" placeholder="staff_user"></div>
+    <div><label>الاسم الظاهر</label><input name="display_name" maxlength="120" placeholder="اسم المشرف"></div>
+    <div><label>كلمة المرور (12 حرفًا على الأقل)</label><input type="password" name="password" required minlength="12" autocomplete="new-password"></div>
+    <div><label>الدور العام</label><select name="role"><option value="viewer">مشاهد</option><option value="reviewer">مراجع طلبات</option><option value="creator">منشئ نماذج</option><option value="admin">مدير كامل</option></select></div>
+    <label class="check-row"><input type="checkbox" name="can_moderate" value="on"><span><strong>السماح بلوحة الحظر</strong><small>يسجل إجراءات حظر الشات والبريد داخل البوابة.</small></span></label>
+    <button class="button button-primary" type="submit">إنشاء المستخدم</button>
+  </form>
+</section>
+<section class="section-heading section-spaced"><div><h2>الحسابات الحالية <span class="count-badge">{{ users|length }}</span></h2><p>تعطيل المستخدم يمنع تسجيل دخوله دون حذف سجلاته.</p></div></section>
+<div class="user-list">
+{% for user in users %}
+  <article class="panel user-card"><div class="user-card-heading"><div><h3>{{ user.display_name or user.username }}</h3><p class="muted">@{{ user.username }} · أنشئ في {{ user.created_at.strftime('%Y-%m-%d') }}</p></div><span class="status-pill {{ 'status-on' if user.active else 'status-off' }}">{{ 'نشط' if user.active else 'معطّل' }}</span></div>
+  <form method="post" action="{{ url_for('save_user', user_id=user.id) }}" class="grid-form user-edit-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div><label>الاسم الظاهر</label><input name="display_name" value="{{ user.display_name }}" maxlength="120"></div>
+    <div><label>الدور</label><select name="role">{% for role, label in role_labels.items() %}<option value="{{ role }}" {% if user.role == role %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div><label>تعيين كلمة مرور جديدة</label><input type="password" name="password" minlength="12" autocomplete="new-password" placeholder="اتركها فارغة دون تغيير"></div>
+    <label class="check-row"><input type="checkbox" name="can_moderate" value="on" {% if user.can_moderate %}checked{% endif %}><span><strong>السماح بلوحة الحظر</strong></span></label>
+    <label class="check-row"><input type="checkbox" name="active" value="on" {% if user.active %}checked{% endif %}><span><strong>الحساب نشط</strong></span></label>
+    <button class="button button-secondary" type="submit">حفظ الحساب</button>
+    <a class="button button-primary" href="{{ url_for('user_permissions', user_id=user.id) }}">تحديد صلاحيات النماذج</a>
+  </form></article>
+{% endfor %}
+</div>
+{% endblock %}

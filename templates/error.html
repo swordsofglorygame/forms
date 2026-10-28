@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} — {{ title }}{% endblock %}
+{% block content %}
+<section class="success-state panel"><div class="error-code">{{ code }}</div><h1>{{ title }}</h1><p>{{ message }}</p><a class="button button-primary" href="{{ url_for('index') }}">العودة للرئيسية</a></section>
+{% endblock %}

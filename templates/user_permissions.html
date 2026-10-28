@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}صلاحيات {{ user.username }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><span class="eyebrow">FORM PERMISSIONS</span><h1>صلاحيات النماذج</h1><p>{{ user.display_name or user.username }} · {{ role_labels.get(user.role, user.role) }}</p></div><a class="button button-secondary" href="{{ url_for('users') }}">عودة للمستخدمين</a></div>
+{% if user.role == 'admin' %}<div class="flash flash-info">هذا المستخدم مدير كامل، لذلك يمكنه الوصول لكل النماذج والنتائج بغض النظر عن الاختيارات أدناه.</div>{% endif %}
+<form method="post" class="permissions-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% for form in forms %}{% set p = permissions.get(form.id) %}
+  <section class="panel permission-form-card"><div class="permission-form-title"><h2>{{ form.name }}</h2><code>{{ form.slug }}</code></div>
+    <div class="permission-grid">
+      <label class="permission-option"><input type="checkbox" name="read_{{ form.id }}" value="on" {% if p and p.can_read %}checked{% endif %}><span><strong>قراءة النموذج</strong><small>رؤية النموذج وتفاصيله في لوحة التحكم.</small></span></label>
+      <label class="permission-option"><input type="checkbox" name="results_{{ form.id }}" value="on" {% if p and p.can_results %}checked{% endif %}><span><strong>رؤية النتائج</strong><small>قراءة الطلبات والبحث والتصدير CSV وتحديث حالة المراجعة.</small></span></label>
+      <label class="permission-option"><input type="checkbox" name="edit_{{ form.id }}" value="on" {% if p and p.can_edit %}checked{% endif %}><span><strong>تعديل النموذج</strong><small>تعديل الإعدادات والحقول.</small></span></label>
+      <label class="permission-option"><input type="checkbox" name="manage_{{ form.id }}" value="on" {% if p and p.can_manage %}checked{% endif %}><span><strong>تحكم كامل بالنموذج</strong><small>قراءة وتعديل ورؤية النتائج لهذا النموذج.</small></span></label>
+    </div>
+  </section>
+  {% else %}<div class="empty-state"><h3>لا توجد نماذج</h3><p>أنشئ نموذجًا أولًا ثم ارجع لتحديد الصلاحيات.</p></div>{% endfor %}
+  {% if forms %}<div class="sticky-actions"><button class="button button-primary" type="submit">حفظ جميع الصلاحيات</button></div>{% endif %}
+</form>
+{% endblock %}

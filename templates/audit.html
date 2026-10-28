@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}سجل النشاط{% endblock %}
+{% block content %}
+<div class="page-header"><div><span class="eyebrow">AUDIT LOG</span><h1>سجل النشاط</h1><p>آخر 300 عملية مسجلة داخل لوحة الإدارة.</p></div></div>
+<div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>المستخدم</th><th>العملية</th><th>العنصر</th><th>التفاصيل</th></tr></thead><tbody>{% for log in logs %}<tr><td>{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td><td>{{ users_map.get(log.user_id).username if users_map.get(log.user_id) else '—' }}</td><td><code>{{ log.action }}</code></td><td>{{ log.entity_type }} #{{ log.entity_id }}</td><td>{{ log.details }}</td></tr>{% else %}<tr><td colspan="5" class="empty-cell">لا توجد عمليات مسجلة بعد.</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}تسجيل إجراء حظر{% endblock %}
+{% block content %}
+<div class="page-header"><div><span class="eyebrow">NEW MODERATION RECORD</span><h1>تسجيل إجراء حظر</h1><p>حدد نوع الحظر ومعلومات اللاعب والمدة والسبب.</p></div><a class="button button-secondary" href="{{ url_for('moderation_dashboard') }}">رجوع للسجل</a></div>
+<div class="flash flash-warning"><strong>تنبيه:</strong> حفظ هذا النموذج لا يرسل أمرًا إلى اللعبة. سجّل الإجراء هنا ثم نفّذه من أداة اللعبة الرسمية، وبعدها حدّث الحالة إلى «تم التنفيذ».</div>
+<form method="post" class="panel form-layout">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="action_type">نوع الحظر <span class="required-mark">*</span></label><select id="action_type" name="action_type" required><option value="">اختر النوع</option><option value="chat" {% if values.get('action_type')=='chat' %}selected{% endif %}>حظر الشات</option><option value="mail" {% if values.get('action_type')=='mail' %}selected{% endif %}>حظر البريد داخل اللعبة</option></select>
+  <div class="grid-form"><div><label for="player_uid">رقم هوية اللاعب (UID) <span class="required-mark">*</span></label><input id="player_uid" name="player_uid" value="{{ values.get('player_uid','') }}" required maxlength="100"></div><div><label for="player_name">اسم اللاعب</label><input id="player_name" name="player_name" value="{{ values.get('player_name','') }}" maxlength="120"></div><div><label for="server">السيرفر <span class="required-mark">*</span></label><input id="server" name="server" value="{{ values.get('server','') }}" required maxlength="100" placeholder="مثال: S1"></div><div><label for="duration">المدة <span class="required-mark">*</span></label><select id="duration" name="duration" required><option value="">اختر المدة</option>{% for key,label in [('10m','10 دقائق'),('1h','ساعة'),('6h','6 ساعات'),('24h','24 ساعة'),('7d','7 أيام'),('30d','30 يومًا'),('permanent','دائم')] %}<option value="{{ key }}" {% if values.get('duration')==key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div></div>
+  <label for="reason">سبب الحظر <span class="required-mark">*</span></label><textarea id="reason" name="reason" rows="4" required maxlength="3000" placeholder="اكتب سبب الإجراء بوضوح ليستطيع الفريق مراجعته.">{{ values.get('reason','') }}</textarea>
+  <button class="button button-primary" type="submit">تسجيل الإجراء</button>
+</form>
+{% endblock %}

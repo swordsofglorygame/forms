@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ form.name }}{% endblock %}
+{% block content %}
+<section class="narrow-page application-page">
+  <div class="page-title"><span class="eyebrow">SWORDS OF GLORY</span><h1>{{ form.name }}</h1>{% if form.description %}<p>{{ form.description }}</p>{% endif %}</div>
+  {% if errors %}<div class="flash flash-error"><strong>راجع البيانات التالية:</strong><ul>{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul></div>{% endif %}
+  {% if fields %}
+  <form method="post" class="panel form-layout application-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% for field in fields %}
+      <div class="application-field">
+        <label for="field-{{ field.id }}">{{ field.label }}{% if field.required %} <span class="required-mark">*</span>{% else %} <span class="optional-label">اختياري</span>{% endif %}</label>
+        {% if field.field_type == 'textarea' %}
+          <textarea id="field-{{ field.id }}" name="{{ field.field_key }}" rows="4" {% if field.required %}required{% endif %}>{{ values.get(field.field_key, '') }}</textarea>
+        {% elif field.field_type == 'select' %}
+          <select id="field-{{ field.id }}" name="{{ field.field_key }}" {% if field.required %}required{% endif %}><option value="">اختر...</option>{% for option in field.options.splitlines() %}{% if option.strip() %}<option value="{{ option.strip() }}" {% if values.get(field.field_key, '') == option.strip() %}selected{% endif %}>{{ option.strip() }}</option>{% endif %}{% endfor %}</select>
+        {% elif field.field_type == 'checkbox' %}
+          <label class="check-row single-checkbox"><input id="field-{{ field.id }}" type="checkbox" name="{{ field.field_key }}" value="on" {% if values.get(field.field_key) == 'on' %}checked{% endif %} {% if field.required %}required{% endif %}><span>{{ field.label }}</span></label>
+        {% else %}
+          <input id="field-{{ field.id }}" type="{{ field.field_type }}" name="{{ field.field_key }}" value="{{ values.get(field.field_key, '') }}" {% if field.required %}required{% endif %} {% if field.field_type == 'number' %}step="any"{% endif %}>
+        {% endif %}
+      </div>
+    {% endfor %}
+    <p class="form-privacy-note">تأكد من صحة المعلومات قبل الإرسال.</p>
+    <button class="button button-primary button-wide" type="submit">إرسال الطلب</button>
+  </form>
+  {% else %}<div class="empty-state"><h3>النموذج قيد الإعداد</h3><p>لم يضف المسؤول أي حقول بعد.</p></div>{% endif %}
+</section>
+{% endblock %}

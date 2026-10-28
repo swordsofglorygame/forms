@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}نتائج {{ form.name }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><span class="eyebrow">SUBMISSIONS</span><h1>نتائج النموذج</h1><p>{{ form.name }} — {{ rows|length }} طلب</p></div><div class="button-row"><a class="button button-secondary" href="{{ url_for('form_overview', form_id=form.id) }}">نظرة عامة</a><a class="button button-primary" href="{{ url_for('export_results', form_id=form.id) }}">تصدير CSV</a></div></div>
+<div class="filter-row"><label for="search-results">بحث في النتائج</label><input id="search-results" type="search" placeholder="ابحث داخل الطلبات..." oninput="filterRows(this.value)"></div>
+<div class="table-wrap results-wrap"><table id="results-table"><thead><tr><th>رقم الطلب</th>{% for field in fields %}<th>{{ field.label }}</th>{% endfor %}<th>الحالة والمراجعة</th><th>تاريخ التقديم</th></tr></thead><tbody>
+{% for row in rows %}
+<tr class="result-row"><td>#{{ row.submission.id }}</td>{% for field in fields %}<td class="cell-content">{{ row.values.get(field.key, '') }}</td>{% endfor %}<td class="review-cell"><form method="post" action="{{ url_for('review_submission', submission_id=row.submission.id) }}" class="review-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><select name="status" aria-label="حالة الطلب">{% for status, label in submission_statuses.items() %}<option value="{{ status }}" {% if row.submission.status == status %}selected{% endif %}>{{ label }}</option>{% endfor %}</select><textarea name="review_note" rows="2" maxlength="5000" placeholder="ملاحظة داخلية (اختياري)">{{ row.submission.review_note }}</textarea><button class="button button-small button-secondary" type="submit">حفظ المراجعة</button></form></td><td>{{ row.submission.submitted_at.strftime('%Y-%m-%d %H:%M') }}</td></tr>
+{% else %}<tr><td colspan="{{ fields|length + 3 }}" class="empty-cell">لا توجد طلبات حتى الآن.</td></tr>{% endfor %}
+</tbody></table></div>
+<script>
+function filterRows(value) {
+  const q = (value || '').toLocaleLowerCase();
+  document.querySelectorAll('.result-row').forEach(row => {
+    row.style.display = row.innerText.toLocaleLowerCase().includes(q) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}إعداد النموذج | {{ form.name }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><span class="eyebrow">FORM BUILDER</span><h1>إعداد النموذج</h1><p>أضف الحقول التي تحتاجها فقط. لا توجد أي حقول افتراضية مفروضة عليك.</p></div><a class="button button-secondary" href="{{ url_for('form_overview', form_id=form.id) }}">نظرة عامة</a></div>
+<form method="post" class="panel form-layout">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <h2 class="panel-title">الإعدادات الأساسية</h2>
+  <label for="name">اسم النموذج <span class="required-mark">*</span></label><input id="name" name="name" value="{{ form.name }}" required maxlength="180">
+  <label for="slug">الرابط المختصر</label><input id="slug" name="slug" value="{{ form.slug }}" maxlength="100" dir="ltr" required>
+  <label for="description">الوصف</label><textarea id="description" name="description" rows="3" maxlength="5000">{{ form.description }}</textarea>
+  <div class="check-panel"><label class="check-row"><input type="checkbox" name="is_active" value="on" {% if form.is_active %}checked{% endif %}><span><strong>النموذج مفعّل</strong><small>إلغاء التحديد يوقف استقبال الطلبات.</small></span></label><label class="check-row"><input type="checkbox" name="is_public" value="on" {% if form.is_public %}checked{% endif %}><span><strong>نشر النموذج للعامة</strong><small>إلغاء التحديد يخفيه عن صفحة النماذج العامة.</small></span></label></div>
+  <button class="button button-primary" type="submit">حفظ الإعدادات</button>
+</form>
+
+<section class="section-heading section-spaced"><div><h2>حقول النموذج <span class="count-badge">{{ fields|length }}</span></h2><p>غيّر ترتيب الحقول باستخدام أرقام الترتيب، ثم احفظ كل حقل. الحقول الموقوفة لا تظهر للاعب.</p></div></section>
+<div class="field-list">
+{% for field in fields %}
+  <details class="panel field-panel" {% if loop.first %}open{% endif %}>
+    <summary><span class="field-number">{{ loop.index }}</span><span class="field-summary-name">{{ field.label }}</span><span class="field-summary-type">{{ field_type_labels.get(field.field_type, field.field_type) }}</span><span class="field-summary-state">{{ 'مفعّل' if field.is_active else 'موقوف' }}</span></summary>
+    <div class="field-panel-content">
+      <form method="post" action="{{ url_for('update_field', form_id=form.id, field_id=field.id) }}" class="form-layout compact-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>اسم الحقل <span class="required-mark">*</span></label><input name="label" value="{{ field.label }}" required maxlength="180">
+        <label>ترتيب الظهور</label><input type="number" name="position" min="0" max="10000" value="{{ field.position }}">
+        <label>نوع الحقل</label><select name="field_type">{% for type, label in field_type_labels.items() %}<option value="{{ type }}" {% if field.field_type == type %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+        <label>خيارات القائمة <span class="optional-label">لنوع قائمة الاختيار فقط — كل اختيار في سطر</span></label><textarea name="options" rows="3">{{ field.options }}</textarea>
+        <div class="check-panel inline-checks"><label class="check-row"><input type="checkbox" name="required" value="on" {% if field.required %}checked{% endif %}><span><strong>حقل إجباري</strong></span></label><label class="check-row"><input type="checkbox" name="is_active" value="on" {% if field.is_active %}checked{% endif %}><span><strong>إظهار الحقل للاعبين</strong></span></label></div>
+        <div class="button-row"><button class="button button-primary" type="submit">حفظ الحقل</button></div>
+      </form>
+      <form method="post" action="{{ url_for('delete_field', form_id=form.id, field_id=field.id) }}" onsubmit="return confirm('هل تريد حذف هذا الحقل؟ ستظل قيمه محفوظة في الطلبات القديمة.');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-danger" type="submit">حذف الحقل نهائيًا من النموذج</button>
+      </form>
+    </div>
+  </details>
+{% else %}
+  <div class="empty-state slim"><h3>النموذج فارغ حاليًا</h3><p>ابدأ بإضافة الحقول التي تريدها أدناه. لن نضيف حقول اللاعب أو السيرفر تلقائيًا.</p></div>
+{% endfor %}
+</div>
+
+<section class="panel form-layout add-field-panel">
+  <span class="eyebrow">ADD FIELD</span><h2>إضافة حقل جديد</h2><p class="muted">اختر الاسم والنوع، وحدد بنفسك إن كان إجباريًا.</p>
+  <form method="post" action="{{ url_for('add_field', form_id=form.id) }}" class="form-layout">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="new-label">اسم الحقل <span class="required-mark">*</span></label><input id="new-label" name="label" required maxlength="180" placeholder="مثال: اسم اللاعب">
+    <label for="new-type">نوع الحقل</label><select id="new-type" name="field_type">{% for type, label in field_type_labels.items() %}<option value="{{ type }}">{{ label }}</option>{% endfor %}</select>
+    <label for="new-options">خيارات القائمة <span class="optional-label">لنوع قائمة الاختيار فقط — كل اختيار في سطر</span></label><textarea id="new-options" name="options" rows="4" placeholder="السيرفر الأول&#10;السيرفر الثاني"></textarea>
+    <label class="check-row standalone-check"><input type="checkbox" name="required" value="on"><span><strong>اجعل الحقل إجباريًا</strong><small>افتراضيًا غير محدد.</small></span></label>
+    <button class="button button-primary" type="submit">＋ إضافة الحقل</button>
+  </form>
+</section>
+{% endblock %}

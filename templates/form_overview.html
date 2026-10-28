@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ form.name }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><span class="eyebrow">FORM OVERVIEW</span><h1>{{ form.name }}</h1><p>{{ form.description or 'لا يوجد وصف.' }}</p></div><a class="button button-secondary" href="{{ url_for('dashboard') }}">رجوع للوحة التحكم</a></div>
+<div class="stats-grid">
+  <div class="stat-card"><span>حالة النموذج</span><strong>{{ 'مفعّل' if form.is_active else 'متوقف' }}</strong></div>
+  <div class="stat-card"><span>الظهور العام</span><strong>{{ 'منشور' if form.is_public else 'غير منشور' }}</strong></div>
+  <div class="stat-card"><span>عدد الحقول الحالية</span><strong>{{ fields|selectattr('is_active')|list|length }}</strong></div>
+  {% if submission_count is not none %}<div class="stat-card"><span>عدد الطلبات</span><strong>{{ submission_count }}</strong></div>{% endif %}
+</div>
+<div class="panel overview-panel"><div class="section-heading"><div><h2>حقول النموذج</h2><p>هذه الحقول الحالية فقط؛ بيانات الحقول المحذوفة تظل محفوظة داخل الطلبات السابقة.</p></div></div>
+{% if fields %}<div class="table-wrap"><table><thead><tr><th>الحقل</th><th>النوع</th><th>إجباري</th><th>الحالة</th></tr></thead><tbody>{% for field in fields %}<tr><td>{{ field.label }}</td><td>{{ field_type_labels.get(field.field_type, field.field_type) }}</td><td>{{ 'نعم' if field.required else 'لا' }}</td><td>{{ 'ظاهر' if field.is_active else 'موقوف' }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="inline-empty">لم تُضف أي حقول بعد.</div>{% endif %}
+<div class="button-row overview-actions">
+  {% if can_access(form.id, 'edit') %}<a class="button button-primary" href="{{ url_for('edit_form', form_id=form.id) }}">إعداد الحقول والنموذج</a>{% endif %}
+  {% if can_access(form.id, 'results') %}<a class="button button-secondary" href="{{ url_for('form_results', form_id=form.id) }}">عرض النتائج</a>{% endif %}
+  {% if form.is_public and form.is_active %}<a class="button button-secondary" target="_blank" rel="noopener" href="{{ url_for('apply_form', slug=form.slug) }}">فتح النموذج العام</a>{% endif %}
+</div></div>
+{% endblock %}

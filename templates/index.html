@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}النماذج العامة | سيوف المجد{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy"><span class="eyebrow">SWORDS OF GLORY</span><h1>بوابة النماذج</h1><p>قدّم طلبك من خلال النموذج المناسب. تظهر هنا النماذج التي نشرها فريق الإدارة فقط.</p></div>
+  <div class="hero-mark" aria-hidden="true">⚔</div>
+</section>
+<div class="section-heading"><div><h2>النماذج المتاحة</h2><p>النماذج المنشورة والمفعّلة حاليًا</p></div></div>
+<div class="card-grid">
+  {% for form in forms %}
+    <article class="form-card public-form-card">
+      <div class="card-kicker">نموذج رسمي</div>
+      <h3>{{ form.name }}</h3>
+      <p class="description">{{ form.description or 'لا يوجد وصف لهذا النموذج.' }}</p>
+      <a class="button button-primary" href="{{ url_for('apply_form', slug=form.slug) }}">فتح النموذج <span aria-hidden="true">←</span></a>
+    </article>
+  {% else %}
+    <div class="empty-state"><div class="empty-icon">▤</div><h3>لا توجد نماذج منشورة الآن</h3><p>سيظهر النموذج هنا بعد أن ينشئه المسؤول ويضيف حقوله وينشره.</p></div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}إنشاء نموذج{% endblock %}
+{% block content %}
+<div class="page-header"><div><span class="eyebrow">FORM BUILDER</span><h1>إنشاء نموذج جديد</h1><p>ابدأ باسم ووصف فقط؛ لن تُضاف أي حقول تلقائيًا. أنت من يحدد الحقول لاحقًا.</p></div><a class="button button-secondary" href="{{ url_for('dashboard') }}">رجوع</a></div>
+<form method="post" class="panel form-layout">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="name">اسم النموذج <span class="required-mark">*</span></label><input id="name" name="name" value="{{ values.get('name', '') }}" required maxlength="180" placeholder="مثال: ترشيح مراقبي الشات">
+  <label for="slug">الرابط المختصر <span class="optional-label">اختياري</span></label><input id="slug" name="slug" value="{{ values.get('slug', '') }}" maxlength="100" dir="ltr" placeholder="chat-moderators">
+  <small class="help-text">استخدم حروفًا إنجليزية وأرقامًا وشرطة. إذا تركته فارغًا سيُنشأ رابط تلقائي.</small>
+  <label for="description">وصف النموذج <span class="optional-label">اختياري</span></label><textarea id="description" name="description" rows="4" maxlength="5000" placeholder="اشرح للاعبين الغرض من النموذج.">{{ values.get('description', '') }}</textarea>
+  <div class="check-panel"><label class="check-row"><input type="checkbox" name="is_active" value="on" {% if values.get('is_active') == 'on' or not values %}checked{% endif %}><span><strong>تفعيل النموذج</strong><small>يمكن إيقافه لاحقًا دون حذف الطلبات.</small></span></label><label class="check-row"><input type="checkbox" name="is_public" value="on" {% if values.get('is_public') == 'on' %}checked{% endif %}><span><strong>نشره للعامة</strong><small>إذا لم تحدد ذلك، لن يظهر في صفحة النماذج العامة.</small></span></label></div>
+  <button class="button button-primary" type="submit">إنشاء ومتابعة إعداد الحقول</button>
+</form>
+{% endblock %}

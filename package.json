@@ -1,0 +1,16 @@
+{
+  "name": "sog-moderator-portal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Swords of Glory forms and moderator dashboard using Cloudflare Workers and D1",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:local": "wrangler d1 execute sog-moderator-portal --local --file=./migrations/0001_schema.sql",
+    "db:remote": "wrangler d1 execute sog-moderator-portal --remote --file=./migrations/0001_schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  },
+  "type": "module"
+}
